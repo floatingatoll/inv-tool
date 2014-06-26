@@ -583,8 +583,8 @@ This would lookup be equivalent to doing::
 Service Import/Export API
 =========================
 Invtool exposes the state of a specific services via the ``invtool service_export`` command. For
-easy human consumption the export can be done via ``YAML`` format. To specify a service to export
-you are to use standard IQL syntax. For example, to export a service with the name "dns" you would
+easy human consumption the export can be done via ``YAML`` format. To specify a service to export,
+use the standard IQL syntax. For example, to export a service with the name "dns" you would
 do::
 
     ~/ » invtool service_export --yaml service.name=dns
@@ -607,10 +607,10 @@ Once a service's stanza has been exported it can be updated and then imported vi
 ``ns1.mozilla.com`` and ``ns2.mozilla.com`` to the dns service previously exported. You would export
 into a local file for editing::
 
-    ~/ » invtool service_export --yaml service.name=dns > dns.serice
+    ~/ » invtool service_export --yaml service.name=dns > dns.service
 
-And then modify the stored definition to be::
-    ~/ » invtool service_export --yaml service.name=dns
+And then add the two hosts to the 'systems' array in the locally-stored definition::
+    ~/ » $EDITOR dns.service
     - alias: "Domain Name Resolution"
       business_owner: Wesley
       category: Infrastructure Management
@@ -627,7 +627,7 @@ And then modify the stored definition to be::
       usage_frequency: constantly
       used_by: Anyone on the internet trying to resolve a Mozilla DNS name
 
-You can then import the updated ``dns.service`` by either piping the contents of the file into
+And then import the updated ``dns.service`` by either piping the contents of the file into
 ``invtool`` or specifying the file to ``invtool``::
 
     ~/ » invtool service_import --file-path dns.service
@@ -642,16 +642,18 @@ a matching hostname.
 
 Specifiying the parent service and dependancies
 -----------------------------------------------
-There are two special keys that can be used to specify when a service related to another service:
-the ``parent_service`` and ``depends_on``. Both use an IQL statement to specify which service is
+There are two special keys that can be used to specify when a service relates to another service,
+``parent_service`` and ``depends_on``. Both use an IQL statement to specify which service is
 being listed. The IQL is always in the following syntax::
 
     service.name='<service-name>' service.site='<service-site>'
 
+Services may have one ``parent_service`` relationship and many ``depends_on`` relationships.
+
 Taken together, the values of ``service-name`` and ``service-site`` can always be used to uniquely
 identify a service.
 
-An example of specifying a ``parent_service`` for our ``dns`` example would be::
+An example of specifying a ``parent_service`` relationship for our ``dns`` example would be::
 
     - alias: "Domain Name Resolution"
       name: dns
@@ -664,7 +666,7 @@ An example of specifying a ``parent_service`` for our ``dns`` example would be::
       ...
       site: scl3
 
-An example of listing dependant services would be::
+An example of specifying many ``depends_on`` relationships for our ``dns`` example would be::
 
     - alias: "Domain Name Resolution"
       name: dns
